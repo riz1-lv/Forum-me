@@ -1,5 +1,5 @@
 {
-  "name": "forum",
+  "name": "forumme",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -25,6 +25,11 @@
     "typescript": "^4.2.4"
   },
   "dependencies": {
-    "nodemon": "^2.0.7"
+    "@mikro-orm/cli": "^4.5.3",
+    "@mikro-orm/core": "^4.5.3",
+    "@mikro-orm/migrations": "^4.5.3",
+    "@mikro-orm/postgresql": "^4.5.3",
+    "nodemon": "^2.0.7",
+    "pg": "^8.6.0"
   }
 }
