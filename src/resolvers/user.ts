@@ -60,7 +60,20 @@ export class UserResolver{
 
     const hashedPassword = await argon2.hash(options.password)
     const user = em.create(User, {username: options.username, password: hashedPassword})
-    await em.persistAndFlush(user);
+    try{
+      await em.persistAndFlush(user);
+     }
+     catch(err){
+       if(err.code === '23505' ){
+        //duplicate user error
+          return{
+            errors:[{
+              field:"username",
+              message:"username already exists"
+            }]
+          }
+       }
+     }
     return {user};
   }
 
@@ -96,4 +109,11 @@ export class UserResolver{
       user:user
     };
   }
+  @Query(() => [User])
+  users(@Ctx() {em}: myContext): Promise<User[]> {
+    return em.find(User,{});
+  }
+
+
+
 }
