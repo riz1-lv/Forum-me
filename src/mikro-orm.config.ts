@@ -13,6 +13,6 @@ export default{
   dbName: 'forumme',
   type: 'postgresql',
   debug: !__prod__,
-  password: process.env.DATABASE_PASSWORD,
+  password: process.env.DATABASE_PASSWORD!,
   } as Parameters<typeof MikroORM.init>[0];
    
