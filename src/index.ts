@@ -31,9 +31,9 @@ await orm.getMigrator().up();
 const app = express();
 
 const pgPool = new pg.Pool({
-  user: 'postgres',
-  database: 'forumme',
-  password: 'postgres',
+  user: process.env.DATABASE_USER!,
+  database: process.env.DATABASE_NAME!,
+  password: process.env.DATABASE_PASSWORD!,
   port: 5432,
 })
 
