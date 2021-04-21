@@ -34,7 +34,7 @@ const pgPool = new pg.Pool({
   user: process.env.DATABASE_USER!,
   database: process.env.DATABASE_NAME!,
   password: process.env.DATABASE_PASSWORD!,
-  port: 5432,
+  port: parseInt(process.env.DATABASE_PORT!),
 })
 
 app.use(session({
