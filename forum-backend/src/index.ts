@@ -77,4 +77,7 @@ app.listen(4000, ()=>{
 })
 
 }
-main();
+main().catch((err)=>{
+  console.error(err);
+  console.log(err)
+});

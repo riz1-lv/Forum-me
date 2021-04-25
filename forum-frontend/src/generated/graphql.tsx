@@ -111,7 +111,7 @@ export type RegisterMutation = (
       & Pick<FieldError, 'field' | 'message'>
     )>>, user?: Maybe<(
       { __typename?: 'User' }
-      & Pick<User, 'id' | 'createdAt' | 'updatedAt' | 'username'>
+      & Pick<User, 'id' | 'username'>
     )> }
   ) }
 );
@@ -126,8 +126,6 @@ export const RegisterDocument = gql`
     }
     user {
       id
-      createdAt
-      updatedAt
       username
     }
   }
