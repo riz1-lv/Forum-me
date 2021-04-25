@@ -64,7 +64,7 @@ export class UserResolver{
       await em.persistAndFlush(user);
      }
      catch(err){
-       if(err.code === '23505' ){
+       if(err.code === '23505' || err.detail.includes("already exists")){
         //duplicate user error
           return{
             errors:[{
