@@ -15,7 +15,7 @@ import PgStore from 'connect-pg-simple'
 import session from 'express-session'
 import { myContext } from './types';
 import pg from 'pg'
-
+import cors from 'cors'
 
 const pgStore = PgStore(session)
 
@@ -36,6 +36,11 @@ const pgPool = new pg.Pool({
   password: process.env.DATABASE_PASSWORD!,
   port: parseInt(process.env.DATABASE_PORT!),
 })
+
+app.use(cors({
+  origin:'http://localhost:3000',
+  credentials:true,
+}))
 
 app.use(session({
   name:'qid',
@@ -63,7 +68,9 @@ const apolloServer = new ApolloServer({
   context: ({req, res}):myContext => ({em: orm.em, req, res})
 })
 
-apolloServer.applyMiddleware({app});
+apolloServer.applyMiddleware({
+  app,
+  cors:false});
 
 app.listen(4000, ()=>{
   console.log("server started on localhost:4000")
