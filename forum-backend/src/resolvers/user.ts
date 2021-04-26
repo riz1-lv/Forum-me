@@ -4,6 +4,7 @@ import { myContext } from "../types";
 import { Arg, Field, InputType, Mutation, Query, Ctx , Resolver, ObjectType } from "type-graphql";
 import argon2 from 'argon2'
 import {EntityManager} from '@mikro-orm/postgresql'
+import { COOKIE_NAME } from "../constants";
 
 @InputType()
 class UsernamePasswordInput {
@@ -138,5 +139,18 @@ export class UserResolver{
       const user = await em.findOne(User,{id: req.session.userId});
       return user;
   }
+
+  @Mutation(()=> Boolean)
+    logout(@Ctx() {req, res}:myContext ){
+      return new Promise(resolve => req.session.destroy(err =>{
+        res.clearCookie(COOKIE_NAME);
+        if(err){
+          console.log(err)
+          resolve(false)
+          return
+        } 
+        resolve(true)
+      }))
+    }
 
 }
