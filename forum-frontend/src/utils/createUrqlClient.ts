@@ -6,7 +6,7 @@ import {betterUpdateQuerey} from './betterUpdateQuerey'
 
 export const createUrqlClient = (_ssrExchange:any) => ({ url: 'http://localhost:4000/graphql',
 fetchOptions:{
-  credentials:"include",
+  credentials:"include" as const,
 },
 exchanges: [dedupExchange, cacheExchange({
   updates:{
@@ -41,4 +41,5 @@ exchanges: [dedupExchange, cacheExchange({
       }
     }
   }
-}), fetchExchange],})
+}),_ssrExchange 
+,fetchExchange],})
