@@ -18,9 +18,9 @@ interface registerProps {}
     return (
     <Wrapper>
       <Formik 
-      initialValues={{username:"" , password:""}}
+      initialValues={{email:"", username:"" , password:""}}
        onSubmit={async (values,{setErrors})=>{
-       const response = await register(values)
+       const response = await register({options: values})
       
        if(response.data?.register.errors){
           setErrors(toErrorMap(response.data.register.errors)
@@ -35,6 +35,9 @@ interface registerProps {}
         {({isSubmitting})=>(
           <Form>
             <InputField name="username" label="Username" placeholder="username"/>
+            <Box mt={4}>
+              <InputField name="email" label="Email" placeholder="email" type="email"/>
+            </Box>
             <Box mt={4}>
               <InputField name="password" label="Password" placeholder="password" type="password"/>
             </Box>

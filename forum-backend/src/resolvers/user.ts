@@ -1,18 +1,13 @@
 
 import { User } from "../entities/User";
 import { myContext } from "../types";
-import { Arg, Field, InputType, Mutation, Query, Ctx , Resolver, ObjectType } from "type-graphql";
+import { Arg, Field, Mutation, Query, Ctx , Resolver, ObjectType } from "type-graphql";
 import argon2 from 'argon2'
 import {EntityManager} from '@mikro-orm/postgresql'
 import { COOKIE_NAME } from "../constants";
+import { validateRegister } from "../utils/validateRegister";
+import { UsernamePasswordInput } from "./UsernamePasswordInput";
 
-@InputType()
-class UsernamePasswordInput {
-  @Field()
-  username: string
-  @Field()
-  password: string
-}
 @ObjectType()
   class FieldError{
     @Field()
@@ -49,26 +44,10 @@ export class UserResolver{
     @Arg('options', ()=> UsernamePasswordInput) options: UsernamePasswordInput,
     @Ctx() {em , req}:myContext 
   ):Promise<UserResponse>{
-    if(options.username.length <= 2){
-      return{
-        errors:[
-        {
-          field:'username',
-          message:'username must be at least 3 charachters'
-        }
-      ]
-      }
-    }
-
-    if(options.password.length <= 7){
-      return{
-        errors:[
-        {
-          field:'password',
-          message:'password must have at least 8 characters'
-        }
-      ]
-      }
+    
+    const errors = validateRegister(options);
+    if(errors){
+      return { errors }
     }
 
     const hashedPassword = await argon2.hash(options.password)
@@ -79,6 +58,7 @@ export class UserResolver{
      .getKnexQuery()
      .insert({
         username: options.username, 
+        email: options.email,
         password: hashedPassword,
         created_at: new Date(),
         updated_at: new Date(),
@@ -105,21 +85,25 @@ export class UserResolver{
 
   @Mutation(() => UserResponse)
   async login(
-    @Arg('options', ()=> UsernamePasswordInput) options: UsernamePasswordInput,
+    @Arg('usernameOrEmail') usernameOrEmail: string,
+    @Arg('password') password:string,
     @Ctx() {em , req }:myContext 
   ): Promise<UserResponse>{
-    const user = await em.findOne(User, {username: options.username})
+    const user = await em.findOne(User, 
+      usernameOrEmail.includes('@')
+       ? {email: usernameOrEmail}
+       : {username: usernameOrEmail})
     if(!user){
       return{
         errors: [
           {
-          field: 'username',
-          message: "username does not exist",
+          field: 'usernameOrEmail',
+          message: "username or email does not exist",
         },
       ],
       }
     }
-    const valid = await argon2.verify(user.password, options.password);
+    const valid = await argon2.verify(user.password, password);
     if(!valid){
       return{
         errors: [
@@ -137,6 +121,7 @@ export class UserResolver{
       user:user
     };
   }
+
   @Query(() => [User])
   users(@Ctx() {em}: myContext): Promise<User[]> {
     return em.find(User,{});
