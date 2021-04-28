@@ -7,6 +7,8 @@ import {EntityManager} from '@mikro-orm/postgresql'
 import { COOKIE_NAME } from "../constants";
 import { validateRegister } from "../utils/validateRegister";
 import { UsernamePasswordInput } from "./UsernamePasswordInput";
+import { sendEmail } from "../utils/sendEmail";
+import {v4} from 'uuid'
 
 @ObjectType()
   class FieldError{
@@ -33,7 +35,19 @@ export class UserResolver{
     @Arg('email') email: string,
     @Ctx() {em}:myContext 
   ){
-    //const user = await em.findOne(User, {email})
+    const user = await em.findOne(User, {email})
+    if(!user){
+
+      return true;
+    }
+    const token = v4();
+    //generate uuid or random token to get token
+
+    // insert token and expiration date to a new pgpool table
+
+    //check if token is expired and correct
+    await sendEmail(email, `<a href="http://localhost:3000/change-password/${token}>reset password</a>`)
+
     return true;
   }
 

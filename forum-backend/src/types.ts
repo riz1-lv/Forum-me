@@ -11,4 +11,5 @@ export type myContext = {
   session: Session & Partial<SessionData> & { userId?: number };
 };
  res: Response;
+ pg: any;
 }

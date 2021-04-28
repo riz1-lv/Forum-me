@@ -21,14 +21,12 @@ import cors from 'cors'
 
 const pgStore = PgStore(session)
 
+
 const main = async() =>{
 const orm = await MikroORM.init(MicroConfig)
 await orm.getMigrator().up();
 
-// const post = orm.em.create(Post,{title:' db Test Post'})
-// await orm.em.persistAndFlush(post);
-// const post = await orm.em.find(Post,{})
-// console.log(post)
+
 
 const app = express();
 
@@ -67,7 +65,7 @@ const apolloServer = new ApolloServer({
     resolvers: [HelloResolver,PostResolver,UserResolver],
     validate:false,
   }),
-  context: ({req, res}):myContext => ({em: orm.em, req, res})
+  context: ({req, res}) => ({em: orm.em, req, res, pgPool})
 })
 
 apolloServer.applyMiddleware({
