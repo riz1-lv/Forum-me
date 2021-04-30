@@ -1,4 +1,4 @@
-
+require('dotenv').config()
 import { User } from "../entities/User";
 import { myContext } from "../types";
 import { Arg, Field, Mutation, Query, Ctx , Resolver, ObjectType } from "type-graphql";
@@ -9,6 +9,7 @@ import { validateRegister } from "../utils/validateRegister";
 import { UsernamePasswordInput } from "./UsernamePasswordInput";
 import { sendEmail } from "../utils/sendEmail";
 import {v4} from 'uuid'
+import jwt from 'jsonwebtoken'
 
 @ObjectType()
   class FieldError{
@@ -35,19 +36,15 @@ export class UserResolver{
     @Arg('email') email: string,
     @Ctx() {em}:myContext 
   ){
+   
     const user = await em.findOne(User, {email})
     if(!user){
-
       return true;
     }
-    const token = v4();
-    //generate uuid or random token to get token
-
-    // insert token and expiration date to a new pgpool table
-
-    //check if token is expired and correct
-    await sendEmail(email, `<a href="http://localhost:3000/change-password/${token}>reset password</a>`)
-
+    let token = jwt.sign({ data: user.id}, process.env.TOKEN_SECRET!, { expiresIn: '1h' });
+    
+    await sendEmail(email, `<a href="http://localhost:3000/change-password/${token}">reset password</a>`)
+    
     return true;
   }
 
