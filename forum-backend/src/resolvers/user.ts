@@ -11,6 +11,14 @@ import { sendEmail } from "../utils/sendEmail";
 import {v4} from 'uuid'
 import jwt from 'jsonwebtoken'
 
+
+
+interface ID {
+  data: string
+  iat: string
+  exp: string
+}
+
 @ObjectType()
   class FieldError{
     @Field()
@@ -31,27 +39,54 @@ class UserResponse{
 
 @Resolver()
 export class UserResolver{
+
+
   @Mutation(()=>UserResponse)
   async changePassword(
     @Arg('token') token: string,
     @Arg('newPassword') newPassword: string,
-    @Ctx() {em}:myContext 
-  ){
+    @Ctx() {em, req}:myContext 
+  ): Promise<UserResponse>
+  {
     
   if(newPassword.length <= 7){
-    return[
+    return{ errors:[
       {
         field:'newPassword',
         message:'password must have at least 8 characters'
       }
     ]
     }
+    }
   
-    let id = jwt.verify(token, process.env.TOKEN_SECRET!,(err,decoded)=>{
+    const userId = jwt.verify(token, process.env.TOKEN_SECRET!) as ID
+    if(!userId){
+      return{ errors:[
+        {
+          field:'token',
+          message:'token has expired'
+        }
+      ]
+      }
       
-    })
+    }
+      const user = await em.findOne(User,{id: parseInt(userId.data) })
+      if(!user){
+        return{ errors:[
+          {
+            field:'token',
+            message:'user no longer exists'
+          }
+        ]
+        }
+      }
+      user.password = await argon2.hash(newPassword);
+      await em.persistAndFlush(user);
+      req.session.userId = user.id
 
+      return { user };
   }
+
   @Mutation(()=>Boolean)
   async forgotPassword(
     @Arg('email') email: string,
