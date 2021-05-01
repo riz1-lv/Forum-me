@@ -31,6 +31,27 @@ class UserResponse{
 
 @Resolver()
 export class UserResolver{
+  @Mutation(()=>UserResponse)
+  async changePassword(
+    @Arg('token') token: string,
+    @Arg('newPassword') newPassword: string,
+    @Ctx() {em}:myContext 
+  ){
+    
+  if(newPassword.length <= 7){
+    return[
+      {
+        field:'newPassword',
+        message:'password must have at least 8 characters'
+      }
+    ]
+    }
+  
+    let id = jwt.verify(token, process.env.TOKEN_SECRET!,(err,decoded)=>{
+      
+    })
+
+  }
   @Mutation(()=>Boolean)
   async forgotPassword(
     @Arg('email') email: string,
