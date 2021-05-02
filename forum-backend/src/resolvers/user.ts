@@ -58,7 +58,7 @@ export class UserResolver{
     ]
     }
     }
-  
+    
     const userId = jwt.verify(token, process.env.TOKEN_SECRET!) as ID
     if(!userId){
       return{ errors:[
