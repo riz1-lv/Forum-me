@@ -45,7 +45,7 @@ export class UserResolver{
   async changePassword(
     @Arg('token') token: string,
     @Arg('newPassword') newPassword: string,
-    @Ctx() {em, req}:myContext 
+    @Ctx() {em, req, res}:myContext 
   ): Promise<UserResponse>
   {
     
@@ -58,9 +58,11 @@ export class UserResolver{
     ]
     }
     }
-    
-    const userId = jwt.verify(token, process.env.TOKEN_SECRET!) as ID
-    if(!userId){
+    let userId;
+    try{
+     userId = jwt.verify(token, process.env.TOKEN_SECRET!) as ID
+    }
+    catch(err){
       return{ errors:[
         {
           field:'token',
@@ -97,7 +99,7 @@ export class UserResolver{
     if(!user){
       return true;
     }
-    let token = jwt.sign({ data: user.id}, process.env.TOKEN_SECRET!, { expiresIn: '1h' });
+    let token = jwt.sign({ data: user.id}, process.env.TOKEN_SECRET!, { expiresIn: 60*15 });
     
     await sendEmail(email, `<a href="http://localhost:3000/change-password/${token}">reset password</a>`)
     
